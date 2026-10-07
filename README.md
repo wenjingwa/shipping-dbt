@@ -35,7 +35,9 @@ Kaggle CSVs ─upload─► raw.olist_shipping ─dbt─► staging (views) ─�
                                                                      + brazil_states seed
 ```
 
-Catalogs: `raw` holds untouched source tables; `shipping_analytics` holds everything dbt builds.
+**Platform:** Databricks with Unity Catalog. Source CSVs were uploaded as tables into the `raw` catalog via the Databricks UI (the reviews file via `read_files`, see `setup/`). dbt builds into the `shipping_analytics` catalog, one schema per developer. A single serverless SQL warehouse provides compute for the uploads, dbt and Power BI; there are no clusters or notebooks in this project.
+
+**Tooling:** dbt Studio (cloud IDE) for development and git; Power BI Desktop connects to the warehouse via the Databricks connector.
 
 ## Models
 
