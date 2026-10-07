@@ -14,15 +14,15 @@ A dbt project on Databricks that turns the Olist e-commerce dataset (100k Brazil
 3. Which seller-state to customer-state routes are late most often?
 4. What does a late delivery do to the review score?
 
-## Findings
+## Findings (Work In Progress)
 
 <!-- Fill from the analysis queries below. Replace every ~ with your actual number. -->
 
-- **~7% of delivered orders are late.** Monthly late share peaks at ~X% in <month year> and is lowest at ~Y%.
-- **Carrier transit dominates.** Median seller handling is ~2 days; median carrier transit is ~7 days. Improving the seller side moves little.
-- **Worst routes:** <seller_state> → <customer_state> is late ~X% of the time (n = orders). Same-state orders are late ~Y% vs ~Z% cross-state.
-- **Late orders score ~X on reviews vs ~Y for on-time orders.** Delivery timing is the biggest single driver of 1-star reviews in this data.
-- **The promised date is padded.** Median promised lead time is ~23 days against a median actual of ~10. Most "on time" deliveries are a week early.
+<- **~7% of delivered orders are late.** Monthly late share peaks at ~X% in <month year> and is lowest at ~Y%.>
+<- **Carrier transit dominates.** Median seller handling is ~2 days; median carrier transit is ~7 days. Improving the seller side moves little.>
+<- **Worst routes:** <seller_state> → <customer_state> is late ~X% of the time (n = orders). Same-state orders are late ~Y% vs ~Z% cross-state.>
+<- **Late orders score ~X on reviews vs ~Y for on-time orders.** Delivery timing is the biggest single driver of 1-star reviews in this data.>
+<- **The promised date is padded.** Median promised lead time is ~23 days against a median actual of ~10. Most "on time" deliveries are a week early.>
 
 ## Architecture
 
@@ -74,8 +74,6 @@ Catalogs: `raw` holds untouched source tables; `shipping_analytics` holds everyt
 
 ## Design decisions
 
-<!-- These are mine in draft form. Rewrite in your own words; keep the ones you'd defend. -->
-
 - **Raw stays raw.** All source columns are strings. Typing and renaming happen in staging, so a bad file fails a test instead of a load.
 - **`try_cast` plus `not_null`, not `cast`.** `cast` aborts the whole model on one bad value; `try_cast` nulls it. The `not_null` test on `purchased_at` makes sure nulls can't hide where they shouldn't exist.
 - **The reviews CSV needed a different loader.** Review comments contain line breaks. The Databricks upload UI split rows on them and shifted columns; `read_files(multiLine => true)` parses it correctly. See `setup/load_reviews.sql`. Found by a `unique` test failing with nonsense values.
@@ -92,7 +90,7 @@ Catalogs: `raw` holds untouched source tables; `shipping_analytics` holds everyt
 3. dbt: connect to the SQL warehouse, schema of your choice. `+database` in `dbt_project.yml` points marts and staging at `shipping_analytics`.
 4. `dbt build`
 
-## Power BI
+## Power BI (Work In Progress)
 
 <!-- Screenshot: docs/screenshots/02-powerbi.png -->
 
@@ -102,10 +100,10 @@ Direct connection to `shipping_analytics`. Star schema: `fct_shipments` to `dim_
 
 [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) (Kaggle, CC BY-NC-SA 4.0). Not included in the repo.
 
-## What I would do next
+## What I would do next (Work In Progress)
 
-- Add products: weight and category as drivers of freight and transit time.
-- Seller-to-customer distance from the geolocation table.
-- Incremental materialisation on `fct_shipments` keyed on `order_id`.
-- A deployment job and dbt Explorer docs.
-- Snapshot on sellers (SCD type 2) to show the pattern.
+<- Add products: weight and category as drivers of freight and transit time.>
+<- Seller-to-customer distance from the geolocation table.>
+<- Incremental materialisation on `fct_shipments` keyed on `order_id`.>
+<- A deployment job and dbt Explorer docs.>
+<- Snapshot on sellers (SCD type 2) to show the pattern.>
