@@ -1,0 +1,143 @@
+version: 2
+ 
+models:
+  - name: fct_shipments
+    description: >
+      One row per delivered or in-flight order with the full shipping timeline
+      (purchase, approval, carrier handover, delivery, promised date), lead times
+      per stage, late flags and order economics. Items are collapsed to order grain.
+      Orders with no item rows are excluded (inner join on items).
+    columns:
+      - name: order_id
+        description: Primary key. One row per order.
+        data_tests: [unique, not_null]
+      - name: customer_id
+        description: Order-level customer id; one customer_id per order in Olist.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_customers')
+                field: customer_id
+      - name: seller_id
+        description: The seller on the order. For multi-seller orders, the lowest seller_id (see seller_count).
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_sellers')
+                field: seller_id
+      - name: purchase_date
+        description: Date part of purchased_at. Join key to dim_date.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_date')
+                field: date
+      - name: order_status
+        description: Olist order status (delivered, shipped, canceled, ...).
+ 
+      - name: purchased_at
+        description: Customer placed the order.
+        data_tests: [not_null]
+      - name: approved_at
+        description: Payment approved.
+      - name: shipped_at
+        description: Seller handed the parcel to the carrier.
+      - name: delivered_at
+        description: Customer received the parcel. Null if not yet delivered.
+      - name: estimated_delivery_date
+        description: Delivery date promised to the customer at purchase.
+      - name: shipping_limit_at
+        description: Earliest shipping deadline any seller had on the order.
+ 
+      - name: lt_approval
+        description: Days from purchase to payment approval.
+      - name: lt_seller_handling
+        description: Days from approval to carrier handover. The seller's part of the chain.
+      - name: lt_carrier_transit
+        description: Days from carrier handover to delivery. The carrier's part of the chain.
+      - name: lt_total_delivery
+        description: Days from purchase to delivery. Null until delivered.
+      - name: lt_estimated_delivery
+        description: Days from purchase to the promised delivery date.
+ 
+      - name: is_delivered
+        description: True when delivered_at is populated.
+        data_tests: [not_null]
+      - name: is_late
+        description: True when delivered after estimated_delivery_date. False (not null) for undelivered orders, so filter on is_delivered when computing late share.
+        data_tests: [not_null]
+      - name: days_vs_estimate
+        description: Delivered date minus promised date. Positive = late, negative = early, null = not delivered.
+      - name: seller_missed_ddl
+        description: True when the seller handed over to the carrier after their shipping deadline.
+ 
+      - name: customer_state
+        description: Two-letter state of the customer.
+      - name: seller_state
+        description: Two-letter state of the seller.
+      - name: is_same_state
+        description: True when seller and customer are in the same state.
+ 
+      - name: item_count
+        description: Number of item lines on the order.
+      - name: seller_count
+        description: Distinct sellers on the order. 1 for the vast majority.
+      - name: goods_value
+        description: Sum of item prices, excluding freight.
+      - name: freight_value
+        description: Sum of freight charged to the customer.
+      - name: freight_ratio
+        description: freight_value / goods_value. Shipping cost as a share of product value. Null when goods_value is 0.
+      - name: review_score
+        description: Latest review score (1 to 5) for the order. Null if no review.
+ 
+  - name: dim_customers
+    description: One row per order-level customer id, with state name and macro-region from the brazil_states seed.
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: customer_unique_id
+        description: Identifies the person; a person can have several customer_ids.
+        data_tests: [not_null]
+      - name: customer_state
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('brazil_states')
+                field: state_code
+      - name: customer_region
+        data_tests: [not_null]
+ 
+  - name: dim_sellers
+    description: One row per seller, with state name and macro-region from the brazil_states seed.
+    columns:
+      - name: seller_id
+        data_tests: [unique, not_null]
+      - name: seller_state
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('brazil_states')
+                field: state_code
+      - name: seller_region
+        data_tests: [not_null]
+ 
+  - name: dim_date
+    description: One row per day from 2016-09-01 to 2018-12-31, covering the Olist order period. ISO weekday numbering (Monday = 1).
+    columns:
+      - name: date
+        data_tests: [unique, not_null]
+      - name: day_of_week
+        description: 1 = Monday ... 7 = Sunday.
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5, 6, 7]
+                quote: false
+      - name: is_weekend
+        data_tests: [not_null]

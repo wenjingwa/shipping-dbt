@@ -1,0 +1,72 @@
+version: 2
+
+models:
+  - name: stg_orders
+    description: One row per order. Timestamps cast with try_cast; status lowercased.
+    columns:
+      - name: order_id
+        description: Primary key.
+        data_tests: [unique, not_null]
+      - name: customer_id
+        data_tests: [not_null]
+      - name: order_status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [delivered, shipped, canceled, unavailable, invoiced, processing, created, approved]
+      - name: purchased_at
+        description: Must exist for every order; a null here means the cast failed.
+        data_tests: [not_null]
+
+  - name: stg_order_items
+    description: One row per item line. Grain is order_id + order_item_id.
+#    data_tests:
+#      - dbt_utils.unique_combination_of_columns:
+#          arguments:
+#            combination_of_columns: [order_id, order_item_id]
+    columns:
+      - name: order_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_orders')
+                field: order_id
+      - name: seller_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_sellers')
+                field: seller_id
+#      - name: freight_value
+#        data_tests:
+#          - dbt_utils.accepted_range:
+#              arguments:
+#                min_value: 0
+
+  - name: stg_customers
+    description: One row per order-level customer id.
+    columns:
+      - name: customer_id
+        data_tests: [unique, not_null]
+      - name: customer_state
+        data_tests: [not_null]
+
+  - name: stg_sellers
+    description: One row per seller.
+    columns:
+      - name: seller_id
+        data_tests: [unique, not_null]
+
+  - name: stg_order_reviews
+    description: Latest review per order; source has a few orders with several reviews.
+    columns:
+      - name: order_id
+        data_tests: [unique, not_null]
+      - name: review_score
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [1, 2, 3, 4, 5]
+                quote: false

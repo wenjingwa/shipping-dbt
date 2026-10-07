@@ -1,0 +1,22 @@
+version: 2
+
+sources:
+  - name: olist
+    description: >
+      Brazilian e-commerce orders from Olist (Kaggle), loaded as-is into Databricks.
+      All columns are strings; typing happens in staging.
+    database: raw
+    schema: olist_shipping
+    tables:
+      - name: olist_orders_dataset
+        description: One row per order with purchase, approval, carrier handover, delivery and promised delivery timestamps.
+      - name: olist_order_items_dataset
+        description: One row per item line in an order. Grain is order_id + order_item_id.
+      - name: olist_customers_dataset
+        description: One row per order-level customer id; customer_unique_id identifies the person.
+      - name: olist_sellers_dataset
+        description: One row per seller with city and state.
+      - name: olist_order_reviews_dataset
+        description: Customer reviews. Loaded via read_files with multiLine on, because comments contain line breaks.
+      - name: olist_products_dataset
+        description: Product dimensions, weight and category. Not used in the first version.
