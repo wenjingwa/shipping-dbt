@@ -18,11 +18,11 @@ A dbt project on Databricks that turns the Olist e-commerce dataset (100k Brazil
 
 <!-- Fill from the analysis queries below. Replace every ~ with your actual number. -->
 
-<- **~7% of delivered orders are late.** Monthly late share peaks at ~X% in <month year> and is lowest at ~Y%.>
-<- **Carrier transit dominates.** Median seller handling is ~2 days; median carrier transit is ~7 days. Improving the seller side moves little.>
-<- **Worst routes:** <seller_state> → <customer_state> is late ~X% of the time (n = orders). Same-state orders are late ~Y% vs ~Z% cross-state.>
-<- **Late orders score ~X on reviews vs ~Y for on-time orders.** Delivery timing is the biggest single driver of 1-star reviews in this data.>
-<- **The promised date is padded.** Median promised lead time is ~23 days against a median actual of ~10. Most "on time" deliveries are a week early.>
+<!-- - **~7% of delivered orders are late.** Monthly late share peaks at ~X% in <month year> and is lowest at ~Y%.-->
+<!-- - **Carrier transit dominates.** Median seller handling is ~2 days; median carrier transit is ~7 days. Improving the seller side moves little.-->
+<!-- - **Worst routes:** <seller_state> → <customer_state> is late ~X% of the time (n = orders). Same-state orders are late ~Y% vs ~Z% cross-state.-->
+<!-- - **Late orders score ~X on reviews vs ~Y for on-time orders.** Delivery timing is the biggest single driver of 1-star reviews in this data.-->
+<!-- - **The promised date is padded.** Median promised lead time is ~23 days against a median actual of ~10. Most "on time" deliveries are a week early.-->
 
 ## Architecture
 
@@ -102,8 +102,8 @@ Direct connection to `shipping_analytics`. Star schema: `fct_shipments` to `dim_
 
 ## What I would do next (Work In Progress)
 
-<- Add products: weight and category as drivers of freight and transit time.>
-<- Seller-to-customer distance from the geolocation table.>
-<- Incremental materialisation on `fct_shipments` keyed on `order_id`.>
-<- A deployment job and dbt Explorer docs.>
-<- Snapshot on sellers (SCD type 2) to show the pattern.>
+<!-- - Add products: weight and category as drivers of freight and transit time.-->
+<!-- - Seller-to-customer distance from the geolocation table.-->
+<!-- - Incremental materialisation on `fct_shipments` keyed on `order_id`.-->
+<!-- - A deployment job and dbt Explorer docs.-->
+<!-- - Snapshot on sellers (SCD type 2) to show the pattern.-->
